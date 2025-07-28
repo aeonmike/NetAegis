@@ -1,25 +1,27 @@
-# Stage 1: Build Go Web UI
+# --------------------------
+# Stage 1: Go build
+# --------------------------
 FROM golang:1.22 AS builder
 
-WORKDIR /app
+# Set working directory matching your Go module name
+WORKDIR /go/src/netaegis
 
-# Copy Go source files
+# Copy go.mod and go.sum and download dependencies
 COPY go.mod go.sum ./
 RUN go mod download
 
-COPY . ./
+# Copy full project source
+COPY . .
 
-# Build the Go backend
-#RUN go build -o netaegis ./cmd/main.go
-RUN go build -x -v -o netaegis ./cmd/main.go
+# Build the Go binary
+RUN go build -o netaegis ./cmd/main.go
 
+# --------------------------
+# Stage 2: Final image with Debian, Nginx, ModSecurity
+# --------------------------
+FROM debian:bookworm-slim
 
-# Stage 2: Build Final Image with Nginx, ModSecurity, and Web UI
-FROM debian:bookworm
-
-ENV DEBIAN_FRONTEND=noninteractive
-
-# Install dependencies
+# Install required packages
 RUN apt-get update && apt-get install -y \
     nginx \
     curl \
@@ -30,32 +32,22 @@ RUN apt-get update && apt-get install -y \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Clone and set up OWASP ModSecurity CRS
-RUN git clone https://github.com/coreruleset/coreruleset /etc/nginx/modsec-crs && \
-    cp /etc/nginx/modsec-crs/crs-setup.conf.example /etc/nginx/modsec-crs/crs-setup.conf
-
-# Copy ModSecurity main config
-COPY modsecurity.conf /etc/modsecurity/modsecurity.conf
-
-# Enable ModSecurity in Nginx
-RUN echo "Include /etc/nginx/modsec-crs/crs-setup.conf" > /etc/modsecurity/include.conf && \
-    echo "Include /etc/nginx/modsec-crs/rules/*.conf" >> /etc/modsecurity/include.conf
-
-# Copy Nginx configuration
-COPY nginx.conf /etc/nginx/nginx.conf
-
-# Copy Go Web UI (from builder stage)
-COPY --from=builder /app/netaegis /usr/local/bin/netaegis
+# Copy compiled Go binary from builder
+COPY --from=builder /go/src/netaegis/netaegis /usr/local/bin/netaegis
 
 # Copy web templates and static files
-COPY templates/ /app/templates/
-COPY static/ /app/static/
+COPY --from=builder /go/src/netaegis/templates /app/templates
+COPY --from=builder /go/src/netaegis/static /app/static
 
-# Set working directory
-WORKDIR /app
+# Copy ModSecurity configuration (optional: create modsecurity.conf and nginx.conf separately)
+COPY modsecurity.conf /etc/modsecurity/
+COPY nginx.conf /etc/nginx/nginx.conf
 
-# Expose ports
+# Create runtime directory for Nginx
+RUN mkdir -p /var/run/nginx
+
+# Expose port 80
 EXPOSE 80
 
-# Start both Nginx and Golang Web UI
-CMD service nginx start && ./netaegis
+# Start both the Go app and Nginx
+CMD ["/usr/local/bin/netaegis"]
