@@ -1,34 +1,60 @@
-# Stage 1: Build Golang Web UI
+# Stage 1: Build Go Web UI
 FROM golang:1.21 AS builder
 
 WORKDIR /app
 
+# Copy Go source files
 COPY go.mod go.sum ./
 RUN go mod download
 
-COPY . .
+COPY . ./
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o netaegis ./cmd/main.go
+# Build the Go backend
+RUN go build -o netaegis ./cmd/main.go
 
-# Stage 2: Debian Base + Nginx + ModSecurity + CRS + NetAegis
-FROM debian:bookworm-slim
+
+# Stage 2: Build Final Image with Nginx, ModSecurity, and Web UI
+FROM debian:bullseye
 
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install dependencies
 RUN apt-get update && apt-get install -y \
     nginx \
-    libnginx-mod-security \
     curl \
     git \
+    build-essential \
+    libmodsecurity3 \
+    libnginx-mod-http-modsecurity \
+    ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Enable ModSecurity and configure it
-RUN mkdir -p /etc/modsecurity /etc/nginx/modsec
+# Clone and set up OWASP ModSecurity CRS
+RUN git clone https://github.com/coreruleset/coreruleset /etc/nginx/modsec-crs && \
+    cp /etc/nginx/modsec-crs/crs-setup.conf.example /etc/nginx/modsec-crs/crs-setup.conf
 
-# Use recommended ModSecurity config
-RUN curl -L https://raw.githubusercontent.com/SpiderLabs/ModSecurity/v3/master/modsecurity.conf-recommended \
-    -o /etc/modsecurity/modsecurity.conf && \
-    sed -i 's/SecRuleEngine DetectionOnly/SecRuleEngine On/' /etc/modsecurity/modsecurity.conf
+# Copy ModSecurity main config
+COPY modsecurity.conf /etc/modsecurity/modsecurity.conf
 
-# Download a
+# Enable ModSecurity in Nginx
+RUN echo "Include /etc/nginx/modsec-crs/crs-setup.conf" > /etc/modsecurity/include.conf && \
+    echo "Include /etc/nginx/modsec-crs/rules/*.conf" >> /etc/modsecurity/include.conf
+
+# Copy Nginx configuration
+COPY nginx.conf /etc/nginx/nginx.conf
+
+# Copy Go Web UI (from builder stage)
+COPY --from=builder /app/netaegis /usr/local/bin/netaegis
+
+# Copy web templates and static files
+COPY templates/ /app/templates/
+COPY static/ /app/static/
+
+# Set working directory
+WORKDIR /app
+
+# Expose ports
+EXPOSE 80
+
+# Start both Nginx and Golang Web UI
+CMD service nginx start && ./netaegis
