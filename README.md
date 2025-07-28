@@ -1,6 +1,10 @@
 # NetAegis 🔥🛡️  
 **Open Source Web Application Firewall (WAF)**
 
+
+![NetAegis Logo](https://raw.githubusercontent.com/aeonmike/netaegis/main/assets/netaegis-logo.png)
+
+
 **NetAegis** is a lightweight, open-source Web Application Firewall designed to protect web applications from common threats such as SQL injection, cross-site scripting (XSS), file inclusion, and more. With support for OWASP CRS, GeoIP filtering, and customizable rule sets, NetAegis is ideal for developers, sysadmins, and DevOps teams looking for transparent, high-performance protection.
 
 ---
