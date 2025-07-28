@@ -35,6 +35,9 @@
 
 ### Docker (Quick Start)
 ```bash
-git clone https://github.com/yourname/netaegis.git
+git clone https://github.com/aeonmike/netaegis.git
 cd netaegis
-docker-compose up -d
+docker build -t netaegis .
+docker run -d -p 8080:80 --name netaegis_test netaegis
+
+
