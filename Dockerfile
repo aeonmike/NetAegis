@@ -10,11 +10,12 @@ RUN go mod download
 COPY . ./
 
 # Build the Go backend
-RUN go build -o netaegis ./cmd/main.go
+#RUN go build -o netaegis ./cmd/main.go
+RUN go build -x -v -o netaegis ./cmd/main.go
 
 
 # Stage 2: Build Final Image with Nginx, ModSecurity, and Web UI
-FROM debian:bullseye
+FROM debian:bookworm
 
 ENV DEBIAN_FRONTEND=noninteractive
 
