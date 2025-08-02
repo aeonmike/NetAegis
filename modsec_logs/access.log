@@ -1,0 +1,7 @@
+136.158.0.77 - - [01/Aug/2025:04:38:32 +0000] "GET /?param=%3Cscript%3Ealert(1)%3C/script%3E%22 HTTP/1.1" 403 555 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+136.158.0.77 - - [01/Aug/2025:04:38:34 +0000] "GET /?param=%3Cscript%3Ealert(1)%3C/script%3E%22 HTTP/1.1" 403 555 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+136.158.0.77 - - [01/Aug/2025:04:39:38 +0000] "GET /?param=%3Cscript%3Ealert(1)%3C/script%3E%22 HTTP/1.1" 403 555 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+136.158.0.77 - - [01/Aug/2025:04:45:43 +0000] "GET /?q=%3Cscript%3Ealert(%27xss%27)%3C/script%3E%22 HTTP/1.1" 403 555 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+136.158.0.77 - - [01/Aug/2025:04:46:20 +0000] "GET /?user=admin%27--%22 HTTP/1.1" 200 29 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+20.163.2.53 - - [01/Aug/2025:04:53:06 +0000] "GET / HTTP/1.1" 403 153 "-" "Mozilla/5.0 zgrab/0.x"
+136.158.0.77 - - [01/Aug/2025:04:54:14 +0000] "GET /?user=admin%27--%22 HTTP/1.1" 304 0 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"

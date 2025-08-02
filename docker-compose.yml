@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  netaegis:
+    build:
+      context: .
+      args:
+        MAXMIND_ACCOUNT_ID: ${MAXMIND_ACCOUNT_ID}
+        MAXMIND_LICENSE_KEY: ${MAXMIND_LICENSE_KEY}
+    container_name: netaegis
+    ports:
+      - "80:80"       # NGINX WAF
+      - "5000:5000"   # Flask Web UI
+    volumes:
+      - ./waf-logs:/waf-logs
+      - ./waf-webui/data:/webui/data
+    environment:
+      - DB_PATH=/webui/data/users.db
+    restart: unless-stopped
