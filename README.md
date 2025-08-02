@@ -37,7 +37,6 @@
 ```bash
 git clone https://github.com/aeonmike/netaegis.git
 cd netaegis
-docker build -t netaegis .
-docker run -d -p 8080:80 --name netaegis_test netaegis
+docker compose up -d --build
 
 
